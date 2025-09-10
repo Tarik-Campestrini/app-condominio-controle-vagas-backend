@@ -1,0 +1,20 @@
+{
+  "name": "app-condominio-controle-vagas-backend",
+  "version": "1.0.0",
+  "main": "serve.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tarik-Campestrini/app-condominio-controle-vagas-backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tarik-Campestrini/app-condominio-controle-vagas-backend/issues"
+  },
+  "homepage": "https://github.com/Tarik-Campestrini/app-condominio-controle-vagas-backend#readme",
+  "description": ""
+}

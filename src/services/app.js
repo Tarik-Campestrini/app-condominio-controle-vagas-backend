@@ -1,12 +1,12 @@
 import express from "express";
 import cors from "cors";
-import moradorRoutes from "./routes/moradorRoutes.js";
+import moradorRoutes from "../routes/moradorRoutes.js";
 
 const app = express();
 
 // === CONFIGURAÇÃO DO CORS ===
 const corsOptions = {
-  origin: "http://localhost:5173", // frontend
+  origin: "https://app-condominio-controle-vagas-frontend-i93pb4xv5.vercel.app", // frontend
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // inclui OPTIONS
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true, // se precisar enviar cookies

@@ -14,9 +14,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// === Middleware para lidar com preflight (OPTIONS) ===
-app.options("*", cors(corsOptions));
-
 // === Parser JSON ===
 app.use(express.json());
 

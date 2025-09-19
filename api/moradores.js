@@ -1,7 +1,31 @@
 import connectDB from "../src/config/db.js";
 import * as moradorController from "../src/controllers/moradorController.js";
+import cors from "cors";
+
+// Inicializa o middleware do CORS com as opções desejadas
+const corsMiddleware = cors({
+  origin: "https://app-condominio-controle-vagas-frontend-i93pb4xv5.vercel.app",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+});
+
+// Helper para executar o middleware em um ambiente serverless
+function runMiddleware(req, res, fn) {
+  return new Promise((resolve, reject) => {
+    fn(req, res, (result) => {
+      if (result instanceof Error) {
+        return reject(result);
+      }
+      return resolve(result);
+    });
+  });
+}
 
 export default async function handler(req, res) {
+  // Executa o middleware do CORS antes de qualquer outra lógica
+  await runMiddleware(req, res, corsMiddleware);
+
   await connectDB();
 
   const { method, query, body } = req;

@@ -6,7 +6,7 @@ const app = express();
 
 // === CONFIGURAÇÃO DO CORS ===
 const corsOptions = {
-  origin: "https://app-condominio-controle-vagas-frontend-i93pb4xv5.vercel.app", // frontend
+  origin: "https://app-condominio-controle-vagas-front.vercel.app", // frontend
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // inclui OPTIONS
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true, // se precisar enviar cookies

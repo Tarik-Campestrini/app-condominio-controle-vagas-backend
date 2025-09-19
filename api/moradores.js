@@ -1,3 +1,6 @@
+import connectDB from "../src/config/db.js";
+import * as moradorController from "../src/controllers/moradorController.js";
+
 export default async function handler(req, res) {
   await connectDB(); // garante conexão ativa a cada request
 

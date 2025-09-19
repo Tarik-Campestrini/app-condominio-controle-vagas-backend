@@ -4,7 +4,7 @@ import cors from "cors";
 
 // Inicializa o middleware do CORS com as opções desejadas
 const corsMiddleware = cors({
-  origin: "https://app-condominio-controle-vagas-frontend-i93pb4xv5.vercel.app",
+  origin: "https://app-condominio-controle-vagas-front.vercel.app",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,

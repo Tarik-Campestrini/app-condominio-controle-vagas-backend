@@ -1,5 +1,5 @@
 import express from "express";
-import { getMoradores, createMorador, updateMorador, deleteMorador } from "../controllers/moradorController.js";
+import { getMoradores, createMorador, updateMorador, deleteMorador } from  "../controllers/moradorController.js";
 
 const router = express.Router();
 

@@ -2,9 +2,15 @@ import mongoose from "mongoose";
 
 const vagaSchema = new mongoose.Schema({
   identificador: { type: String, required: true, unique: true }, // ex: "A-01", "B-02"
-  status: { type: String, enum: ["livre", "ocupada"], default: "livre" },
+  status: { type: String, enum: ["Livre", "Ocupada"], default: "Livre" },
+
+  // Caso a vaga esteja vinculada a um morador do condomínio
   morador: { type: mongoose.Schema.Types.ObjectId, ref: "Morador", default: null },
+
+  // Caso esteja vinculada a um veículo registrado
   veiculo: { type: mongoose.Schema.Types.ObjectId, ref: "Veiculo", default: null },
+
+  // Caso seja ocupada por visitante
   visitante: {
     nome: { type: String, trim: true },
     placa: { type: String, trim: true },

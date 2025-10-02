@@ -1,77 +1,83 @@
 import Vaga from "../models/vagaModel.js";
 
-// 🔹 Buscar todas as vagas (com morador e veículo populados)
+
+// Criar uma vaga
+export const createVaga = async (req, res) => {
+  try {
+    const { identificador } = req.body;
+
+    // Cria a vaga com status "Livre" e sem vinculação
+    const novaVaga = new Vaga({
+      identificador,
+      status: "Livre",
+      morador: null,
+      veiculo: null,
+      visitante: null
+    });
+
+    await novaVaga.save();
+
+    res.status(201).json(novaVaga);
+  } catch (error) {
+    res.status(500).json({ message: "Erro ao criar vaga", error });
+  }
+};
+
+
+
+// Listar todas as vagas 
 export const getVagas = async (req, res) => {
   try {
     const vagas = await Vaga.find()
-      .populate("morador", "nome bloco apartamento telefone")
-      .populate("veiculo", "placa modelo cor");
+      .populate("morador")
+      .populate("veiculo");
     res.json(vagas);
   } catch (error) {
     res.status(500).json({ message: "Erro ao buscar vagas", error });
   }
 };
 
-// 🔹 Criar uma nova vaga
-export const createVaga = async (req, res) => {
-  try {
-    const { identificador, status, morador, veiculo } = req.body;
-
-    const novaVaga = new Vaga({
-      identificador,
-      status,
-      morador: morador || null,
-      veiculo: veiculo || null,
-    });
-
-    await novaVaga.save();
-    res.status(201).json(novaVaga);
-  } catch (error) {
-    res.status(400).json({ message: "Erro ao criar vaga", error });
-  }
-};
-
-// 🔹 Atualizar vaga (ocupar ou liberar)
-export const updateVaga = async (req, res) => {
+// Ocupar vaga
+export const ocuparVaga = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, morador, veiculo } = req.body;
+    const { morador, veiculo, visitante } = req.body;
 
-    const vagaAtualizada = await Vaga.findByIdAndUpdate(
+    const vaga = await Vaga.findByIdAndUpdate(
       id,
-      { status, morador: morador || null, veiculo: veiculo || null },
+      {
+        status: "Ocupada",
+        morador: morador || null,
+        veiculo: veiculo || null,
+        visitante: visitante || null,
+      },
       { new: true }
-    )
-      .populate("morador", "nome bloco apartamento telefone")
-      .populate("veiculo", "placa modelo cor");
+    ).populate("morador").populate("veiculo");
 
-    if (!vagaAtualizada) {
-      return res.status(404).json({ message: "Vaga não encontrada" });
-    }
-
-    res.json(vagaAtualizada);
+    res.json(vaga);
   } catch (error) {
-    res.status(400).json({ message: "Erro ao atualizar vaga", error });
+    res.status(500).json({ message: "Erro ao ocupar vaga", error });
   }
 };
 
-// 🔹 Deletar vaga
-export const deleteVaga = async (req, res) => {
+// Liberar vaga
+export const liberarVaga = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const vagaDeletada = await Vaga.findByIdAndDelete(id);
+    const vaga = await Vaga.findByIdAndUpdate(
+      id,
+      {
+        status: "Livre",
+        morador: null,
+        veiculo: null,
+        visitante: null,
+      },
+      { new: true }
+    );
 
-    if (!vagaDeletada) {
-      return res.status(404).json({ message: "Vaga não encontrada" });
-    }
-
-    res.json({ message: "Vaga removida com sucesso" });
+    res.json(vaga);
   } catch (error) {
-    res.status(500).json({ message: "Erro ao deletar vaga", error });
+    res.status(500).json({ message: "Erro ao liberar vaga", error });
   }
 };
-
-
-// 68d18a7c900043125201275b morador
-//  68da92fb09c4ed4d54d0714e veiculo

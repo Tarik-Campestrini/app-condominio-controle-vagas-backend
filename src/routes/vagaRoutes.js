@@ -1,11 +1,18 @@
 import express from "express";
-import { getVagas, createVaga, updateVaga, deleteVaga } from "../controllers/vagaController.js";
+import { createVaga, getVagas, ocuparVaga, liberarVaga } from "../controllers/vagaController.js";
 
 const router = express.Router();
 
-router.get("/", getVagas);
+// Criar vaga
 router.post("/", createVaga);
-router.put("/:id", updateVaga);
-router.delete("/:id", deleteVaga);
+
+// Listar todas
+router.get("/", getVagas);
+
+// Ocupar uma vaga
+router.put("/:id/ocupar", ocuparVaga);
+
+// Liberar uma vaga
+router.put("/:id/liberar", liberarVaga);
 
 export default router;

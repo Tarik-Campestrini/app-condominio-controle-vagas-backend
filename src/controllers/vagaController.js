@@ -6,7 +6,6 @@ export const createVaga = async (req, res) => {
   try {
     const { identificador } = req.body;
 
-    // Cria a vaga com status "Livre" e sem vinculação
     const novaVaga = new Vaga({
       identificador,
       status: "Livre",
@@ -16,9 +15,14 @@ export const createVaga = async (req, res) => {
     });
 
     await novaVaga.save();
-
     res.status(201).json(novaVaga);
+
   } catch (error) {
+    // Se for erro de duplicidade
+    if (error.code === 11000) {
+      return res.status(400).json({ message: `A vaga ${req.body.identificador} já existe!` });
+    }
+
     res.status(500).json({ message: "Erro ao criar vaga", error });
   }
 };

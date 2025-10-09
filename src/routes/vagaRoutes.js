@@ -1,5 +1,5 @@
 import express from "express";
-import { createVaga, getVagas, ocuparVaga, liberarVaga } from "../controllers/vagaController.js";
+import { createVaga, listarVagas, ocuparVaga, liberarVaga } from "../controllers/vagaController.js";
 
 const router = express.Router();
 
@@ -7,7 +7,7 @@ const router = express.Router();
 router.post("/", createVaga);
 
 // Listar todas
-router.get("/", getVagas);
+router.get("/", listarVagas);
 
 // Ocupar uma vaga
 router.put("/:id/ocupar", ocuparVaga);

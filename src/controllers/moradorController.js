@@ -1,4 +1,3 @@
-// Faz a importação 
 import User from "../models/moradorModel.js";
 
 // Função para criar um novo morador
@@ -21,7 +20,7 @@ export const createMorador = async (req, res) => {
 };
 
 
-// Função Buscar todos os moradores do Banco de Dados
+// Função Buscar todos os moradores 
 export const getMoradores = async (req, res) => {
   try {
     // Busca apenas os campos necessários
@@ -35,7 +34,7 @@ export const getMoradores = async (req, res) => {
   }
 };
 
-// Função para atualizar um usuário pelo ID
+// Atualiza um usuário pelo ID
 import mongoose from "mongoose";
 
 export const updateMorador = async (req, res) => {
@@ -62,7 +61,7 @@ export const updateMorador = async (req, res) => {
 
 
 
-// Função para deletar um usuário
+// Deletar um usuário
 export const deleteMorador = async (req, res) => {
   try {
       const { id } = req.params;

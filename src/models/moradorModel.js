@@ -6,8 +6,10 @@ const moradorSchema = new mongoose.Schema({
   bloco: { type: String, required: true },
   apartamento: { type: String, required: true },
   telefone: { type: String, required: true }
-}, { timestamps: true });
+}, 
+{
+timestamps: true, // mantém createdAt e updatedAt automáticos
+collection: "moradores"  
+});
 
-const Morador = mongoose.model("Morador", moradorSchema);
-
-export default Morador;
+export default mongoose.model("Morador", moradorSchema);

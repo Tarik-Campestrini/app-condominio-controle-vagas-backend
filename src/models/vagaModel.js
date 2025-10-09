@@ -1,25 +1,48 @@
 import mongoose from "mongoose";
 
-const vagaSchema = new mongoose.Schema({
-  identificador: { type: String, required: true, unique: true }, // ex: "A-01", "B-02"
-  status: { type: String, enum: ["Livre", "Ocupada"], default: "Livre" },
+const vagaSchema = new mongoose.Schema(
+  {
+    identificador: { type: String, required: true, unique: true },
+    status: { type: String, enum: ["Livre", "Ocupada"], default: "Livre" },
 
-  // Caso a vaga esteja vinculada a um morador do condomínio
-  morador: { type: mongoose.Schema.Types.ObjectId, ref: "Morador", default: null },
+    // Referência ao morador -> moradorModel
+    morador: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Morador",
+      default: null,
+    },
 
-  // Caso esteja vinculada a um veículo registrado
-  veiculo: { type: mongoose.Schema.Types.ObjectId, ref: "Veiculo", default: null },
+    // Referência ao veículo -> veiculoModel
+    veiculo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Veiculo",
+      default: null,
+    },
 
-  // Caso seja ocupada por visitante
-  visitante: {
-    nome: { type: String, trim: true },
-    placa: { type: String, trim: true },
-    modelo: { type: String, trim: true },
-    cor: { type: String, trim: true },
-    telefone: { type: String, trim: true }
+    // Dados opcionais de visitante
+    visitante: {
+      nome: { type: String },
+      documento: { type: String },
+      veiculo: {
+        placa: String,
+        modelo: String,
+        cor: String,
+      },
+    },
+
+    // Campos de controle de ocupação
+    dataEntrada: {
+      type: Date,
+      default: Date.now,
+    },
+    dataSaida: {
+      type: Date,
+    },
+  },
+  {
+    timestamps: true, // mantém createdAt e updatedAt automáticos
+    collection: "vagas"
   }
-}, { timestamps: true });
+);
 
-const Vaga = mongoose.model("Vaga", vagaSchema);
-
-export default Vaga;
+export default mongoose.model("Vaga", vagaSchema);

@@ -1,15 +1,16 @@
 import mongoose from "mongoose";
 
 const veiculoSchema = new mongoose.Schema({
-  placa: { type: String, required: true, unique: true, trim: true }, // ex: "ABC-1234"
+  placa: { type: String, required: true, unique: true, trim: true }, 
   marca: { type: String, trim: true },
   modelo: { type: String, trim: true },
   cor: { type: String, trim: true },
-  morador: { type: mongoose.Schema.Types.ObjectId, ref: "Morador", required: true }, // relacionamento
-  vaga: { type: String, trim: true }, // opcional: número/identificação da vaga
+
+  morador: { type: mongoose.Schema.Types.ObjectId, ref: "Morador", required: true },  // Referência ao veículo -> moradoroModel 
+
   ativo: { type: Boolean, default: true }
 }, {
-  timestamps: true,
+  timestamps: true, // mantém createdAt e updatedAt automáticos
   collection: "veiculos"
 });
 

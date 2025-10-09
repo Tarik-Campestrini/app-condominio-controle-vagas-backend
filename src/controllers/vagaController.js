@@ -1,70 +1,83 @@
 import Vaga from "../models/vagaModel.js";
 
-
-// Criar uma vaga
+// ✅ Criar uma vaga manualmente
 export const createVaga = async (req, res) => {
   try {
     const { identificador } = req.body;
 
-    const novaVaga = new Vaga({
-      identificador,
-      status: "Livre",
-      morador: null,
-      veiculo: null,
-      visitante: null
-    });
-
-    await novaVaga.save();
-    res.status(201).json(novaVaga);
-
-  } catch (error) {
-    // Se for erro de duplicidade
-    if (error.code === 11000) {
-      return res.status(400).json({ message: `A vaga ${req.body.identificador} já existe!` });
+    // Verifica se já existe uma vaga com o mesmo identificador
+    const existingVaga = await Vaga.findOne({ identificador });
+    if (existingVaga) {
+      return res.status(400).json({ message: "Essa vaga já existe!" });
     }
 
-    res.status(500).json({ message: "Erro ao criar vaga", error });
+    const vaga = new Vaga({ identificador });
+    await vaga.save();
+
+    res.status(201).json({
+      message: "Vaga criada com sucesso!",
+      vaga,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Erro ao criar vaga.",
+      error: error.message,
+    });
   }
 };
 
 
-
-// Listar todas as vagas 
-export const getVagas = async (req, res) => {
+// ✅ Listar todas as vagas
+export const listarVagas = async (req, res) => {
   try {
     const vagas = await Vaga.find()
       .populate("morador")
-      .populate("veiculo");
-    res.json(vagas);
+      .populate("veiculo")
+      .sort({ identificador: 1 });
+
+    res.status(200).json(vagas);
   } catch (error) {
-    res.status(500).json({ message: "Erro ao buscar vagas", error });
+    res.status(500).json({
+      message: "Erro ao listar vagas.",
+      error: error.message,
+    });
   }
 };
 
-// Ocupar vaga
+// ✅ Ocupar vaga
 export const ocuparVaga = async (req, res) => {
   try {
     const { id } = req.params;
-    const { morador, veiculo, visitante } = req.body;
+    const { morador, veiculo, visitante, dataSaida } = req.body;
 
     const vaga = await Vaga.findByIdAndUpdate(
       id,
       {
         status: "Ocupada",
-        morador: morador || null,
-        veiculo: veiculo || null,
-        visitante: visitante || null,
+        morador,
+        veiculo,
+        visitante,
+        dataEntrada: new Date(),
+        dataSaida,
       },
       { new: true }
-    ).populate("morador").populate("veiculo");
+    )
+      .populate("morador")
+      .populate("veiculo");
 
-    res.json(vaga);
+    res.status(200).json({
+      message: "Vaga ocupada com sucesso!",
+      vaga,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Erro ao ocupar vaga", error });
+    res.status(500).json({
+      message: "Erro ao ocupar vaga.",
+      error: error.message,
+    });
   }
 };
 
-// Liberar vaga
+// ✅ Liberar vaga
 export const liberarVaga = async (req, res) => {
   try {
     const { id } = req.params;
@@ -76,12 +89,35 @@ export const liberarVaga = async (req, res) => {
         morador: null,
         veiculo: null,
         visitante: null,
+        dataEntrada: null,
+        dataSaida: null,
       },
       { new: true }
     );
 
-    res.json(vaga);
+    res.status(200).json({
+      message: "Vaga liberada com sucesso!",
+      vaga,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Erro ao liberar vaga", error });
+    res.status(500).json({
+      message: "Erro ao liberar vaga.",
+      error: error.message,
+    });
+  }
+};
+
+// ✅ Deletar vaga
+export const deletarVaga = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Vaga.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Vaga deletada com sucesso!" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Erro ao deletar vaga.",
+      error: error.message,
+    });
   }
 };

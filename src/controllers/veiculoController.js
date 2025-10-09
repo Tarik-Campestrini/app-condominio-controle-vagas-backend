@@ -12,7 +12,7 @@ export const getVeiculos = async (req, res) => {
   }
 };
 
-// Buscar 1 por id
+// Buscar um veiculo por id
 export const getVeiculoById = async (req, res) => {
   try {
     const { id } = req.params;

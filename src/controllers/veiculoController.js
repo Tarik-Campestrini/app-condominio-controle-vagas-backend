@@ -41,12 +41,11 @@ export const createVeiculo = async (req, res) => {
     const saved = await veiculo.save();
     const populated = await saved.populate("morador", "nome email apto apartamento");
     return res.status(201).json(populated);
-  } catch (err) {
-    console.error("Erro createVeiculo:", err);
-    if (err.code === 11000 && err.keyPattern && err.keyPattern.placa) {
+  } catch (error) {
+    if (error.code === 11000 && error.keyPattern && error.keyPattern.placa) {
       return res.status(409).json({ error: "Placa já cadastrada" });
     }
-    return res.status(500).json({ error: "Erro ao criar veículo", details: err.message });
+    return res.status(500).json({ error: "Erro ao criar veículo", details: error.message });
   }
 };
 

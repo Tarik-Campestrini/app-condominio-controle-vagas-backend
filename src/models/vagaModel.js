@@ -23,6 +23,7 @@ const vagaSchema = new mongoose.Schema(
     visitante: {
       nome: { type: String },
       documento: { type: String },
+      telefone: { type: String }, // <-- CORREÇÃO AQUI
       veiculo: {
         placa: String,
         modelo: String,
@@ -33,7 +34,6 @@ const vagaSchema = new mongoose.Schema(
     // Campos de controle de ocupação
     dataEntrada: {
       type: Date,
-      default: Date.now,
     },
     dataSaida: {
       type: Date,

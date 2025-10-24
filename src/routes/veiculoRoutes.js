@@ -1,4 +1,3 @@
-// src/routes/veiculoRoutes.js
 import express from "express";
 import {
   getVeiculos,
@@ -8,22 +7,24 @@ import {
   deleteVeiculo,
 } from "../controllers/veiculoController.js";
 
+import { protect } from "../middleware/authMiddleware.js";
+
 // Criar o roteador
 const router = express.Router();
 
 // Listar todos os veículos
-router.get("/", getVeiculos);
+router.get("/", protect, getVeiculos);
 
 // Buscar veículo por ID
-router.get("/:id", getVeiculoById);
+router.get("/:id", protect, getVeiculoById);
 
 // Criar um veículo
-router.post("/", createVeiculo);
+router.post("/", protect, createVeiculo);
 
 // Atualizar  veículos
-router.put("/:id", updateVeiculo);
+router.put("/:id", protect, updateVeiculo);
 
 // Deletar veículo
-router.delete("/:id", deleteVeiculo);
+router.delete("/:id", protect, deleteVeiculo);
 
 export default router;

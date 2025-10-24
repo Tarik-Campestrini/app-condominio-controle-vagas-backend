@@ -5,6 +5,7 @@ import connectDB from "./src/config/db.js";
 import moradorRoutes from "./src/routes/moradorRoutes.js";
 import veiculoRoutes from "./src/routes/veiculoRoutes.js";
 import vagaRoutes from "./src/routes/vagaRoutes.js";
+import authRoutes from "./src/routes/authRoutes.js"; //
 
 dotenv.config();
 
@@ -20,6 +21,9 @@ app.use(express.json());
 connectDB();
 
 // Rotas
+
+// Autenticação Routes
+app.use("/api/auth", authRoutes); 
 
 // Morador Routes
 app.use("/api/moradores", moradorRoutes);

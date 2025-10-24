@@ -23,7 +23,7 @@ const vagaSchema = new mongoose.Schema(
     visitante: {
       nome: { type: String },
       documento: { type: String },
-      telefone: { type: String }, // <-- CORREÇÃO AQUI
+      telefone: { type: String }, 
       veiculo: {
         placa: String,
         modelo: String,

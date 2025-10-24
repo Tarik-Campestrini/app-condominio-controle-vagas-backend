@@ -1,7 +1,7 @@
 import Veiculo from "../models/veiculoModel.js";
 import mongoose from "mongoose";
 
-// Listar todos (popula dados do morador)
+// Listar todos veiculos e popula dados do morador
 export const getVeiculos = async (req, res) => {
   try {
     const veiculos = await Veiculo.find().populate("morador", "nome email apto apartamento");

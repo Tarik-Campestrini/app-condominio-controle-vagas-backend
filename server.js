@@ -10,20 +10,30 @@ dotenv.config();
 
 const app = express();
 
+
 app.use(cors());
+
+
 app.use(express.json());
 
+// Conectar ao banco de dados
 connectDB();
 
+// Rotas
 
+// Morador Routes
 app.use("/api/moradores", moradorRoutes);
 
+// Veiculo Routes
 app.use("/api/veiculos", veiculoRoutes);
 
+// Vaga Routes
 app.use("/api/vagas", vagaRoutes);
 
+// Definir a porta
 const PORT = process.env.PORT || 5000;
 
+// Iniciar o servidor
 app.listen(PORT, () => {
   console.log("Conectado na Port", PORT);
   

@@ -112,6 +112,3 @@ Este projeto é a API backend para o sistema de **Controle de Vagas de Estaciona
 
 *(**Nota:** Todas as rotas (exceto `/api/auth/login` e `/api/auth/register`) requerem um token JWT válido enviado no cabeçalho `Authorization: Bearer <token>`)*.
 
----
-
-Este README cobre os pontos essenciais do seu backend. Lembre-se de personalizar os links, nomes e talvez adicionar mais detalhes sobre a estrutura do projeto ou como configurar o template do WhatsApp se achar necessário.

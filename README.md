@@ -1,49 +1,53 @@
-# Controle de Vagas de Condomínio - Frontend 
+# Controle de Vagas de Condomínio - Backend 🏢🚗
+
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white) ![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white) ![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white) ![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
 
 ## 📋 Descrição
 
-Este projeto é a interface de usuário (frontend) para o sistema de **Controle de Vagas de Estacionamento de Condomínio**. Ele permite visualizar o status das vagas, ocupá-las (registrando moradores ou visitantes), liberá-las, e gerenciar cadastros de moradores e veículos. A aplicação se conecta a uma API backend para persistir os dados.
+Este projeto é a API backend para o sistema de **Controle de Vagas de Estacionamento de Condomínio**. Ele gerencia a lógica de negócio, interage com o banco de dados MongoDB e fornece endpoints seguros para a aplicação frontend.
 
 ## ✨ Funcionalidades Principais
 
-* **Visualização de Vagas:** Exibição em grid do status (Livre/Ocupada) e detalhes das vagas.
-* **Ocupar Vaga:** Modal inteligente para registrar a ocupação por:
-    * **Morador:** Seleção de morador e veículo (com seleção se houver múltiplos), definição de previsão de saída e opções de notificação via WhatsApp.
-    * **Visitante:** Cadastro rápido de nome, telefone e dados do veículo.
-* **Liberar Vaga:** Atualização do status da vaga com confirmação.
-* **Gerenciamento de Moradores:** CRUD (Criar, Ler, Atualizar, Deletar) completo com modal de cadastro/edição.
-* **Gerenciamento de Veículos:** CRUD completo com modal, incluindo seleção do morador proprietário.
-* **Autenticação:** Sistema de login com JWT para proteger o acesso às páginas.
-* **Pesquisa:** Campo de busca na tela de vagas.
-* **Notificações WhatsApp:** Opção de notificar moradores (individual, todos, ou nenhum) ao ocupar uma vaga (requer configuração no backend).
-* **Modo Dark/Light:** Botão para alternar o tema, com persistência no `localStorage` e detecção da preferência do sistema.
-* **Design Responsivo:** Interface adaptada para diferentes tamanhos de tela (desktop e mobile) usando Tailwind CSS.
-* **Feedback Visual:** Skeleton Loaders durante o carregamento e componentes "Empty State" para listas vazias.
-* **Notificações Toast:** Mensagens de sucesso e erro para as operações.
+* **Gerenciamento de Vagas:**
+    * Criação, listagem (com dados populados de morador/veículo), ocupação e liberação de vagas.
+    * Verificação de disponibilidade antes de ocupar.
+* **Gerenciamento de Moradores:** CRUD completo para cadastro de moradores.
+* **Gerenciamento de Veículos:** CRUD completo para cadastro de veículos, com associação ao morador.
+* **Autenticação:**
+    * Sistema de login baseado em JWT (JSON Web Tokens).
+    * Hashing seguro de senhas usando `bcryptjs`.
+    * Middleware para proteção de rotas, garantindo que apenas usuários autenticados acessem os dados.
+    * (Opcional: Rota de registro de usuários).
+* **Notificações WhatsApp:**
+    * Integração com a API oficial da Meta (WhatsApp Business API).
+    * Envio de mensagens template para notificar moradores (individualmente, todos, ou nenhum) sobre a ocupação de vagas.
+    * Formatação de dados (data/hora) para as mensagens.
 
 ## 🚀 Tecnologias Utilizadas
 
-* **React:** Biblioteca principal para construção da interface.
-* **Vite:** Ferramenta de build e servidor de desenvolvimento rápido.
-* **JavaScript:** Linguagem de programação.
-* **Tailwind CSS:** Framework CSS utility-first para estilização rápida e responsiva.
-* **Axios:** Cliente HTTP para comunicação com a API backend.
-* **React Router DOM:** Para gerenciamento de rotas (navegação entre páginas).
-* **Lucide React:** Biblioteca de ícones SVG.
-* **React Context API:** Para gerenciamento do estado de autenticação.
+* **Node.js:** Ambiente de execução JavaScript no servidor.
+* **Express:** Framework web para criação da API RESTful.
+* **MongoDB:** Banco de dados NoSQL para armazenamento dos dados.
+* **Mongoose:** ODM (Object Data Modeling) para interagir com o MongoDB de forma estruturada.
+* **JSON Web Token (`jsonwebtoken`):** Para gerar e verificar tokens de autenticação.
+* **`bcryptjs`:** Para hashing seguro de senhas.
+* **Axios:** Cliente HTTP para fazer requisições à API do WhatsApp.
+* **`dotenv`:** Para gerenciar variáveis de ambiente.
+* **`cors`:** Para habilitar Cross-Origin Resource Sharing.
 
 ## ⚙️ Pré-requisitos
 
-Antes de começar, você precisará ter instalado em sua máquina:
 * [Node.js](https://nodejs.org/) (Versão 18.x ou superior recomendada)
-* [npm](https://www.npmjs.com/) (geralmente vem com o Node.js) ou [Yarn](https://yarnpkg.com/)
+* [npm](https://www.npmjs.com/) ou [Yarn](https://yarnpkg.com/)
+* [MongoDB](https://www.mongodb.com/try/download/community) (Instalado localmente ou uma conta em um serviço como MongoDB Atlas)
+* Conta configurada na [Meta WhatsApp Business API](https://developers.facebook.com/docs/whatsapp/cloud-api/) com um template de mensagem aprovado (para a funcionalidade de notificação).
 
 ## 🛠️ Instalação e Configuração
 
 1.  **Clone o repositório:**
     ```bash
-    git clone [https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git](https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git)
-    cd SEU_REPOSITORIO
+    git clone [https://github.com/SEU_USUARIO/SEU_REPOSITORIO_BACKEND.git](https://github.com/SEU_USUARIO/SEU_REPOSITORIO_BACKEND.git)
+    cd SEU_REPOSITORIO_BACKEND
     ```
 
 2.  **Instale as dependências:**
@@ -55,40 +59,59 @@ Antes de começar, você precisará ter instalado em sua máquina:
 
 3.  **Configure as Variáveis de Ambiente:**
     * Crie um arquivo chamado `.env` na raiz do projeto.
-    * Adicione a URL base da sua API backend neste arquivo:
+    * Adicione as seguintes variáveis, substituindo pelos seus valores:
         ```.env
-        VITE_API_BASE_URL=https://SUA_URL_DA_API_BACKEND/api
+        # Configuração do Servidor
+        PORT=5000 # Ou outra porta de sua preferência
+
+        # Conexão com MongoDB
+        MONGO_URI=mongodb+srv://<user>:<password>@<cluster-url>/<database-name>?retryWrites=true&w=majority # Ou sua string de conexão local
+
+        # Autenticação JWT
+        JWT_SECRET=<SEU_SEGREDO_SUPER_SECRETO_E_LONGO> # Gere uma chave forte e aleatória
+
+        # API do WhatsApp (Meta)
+        WHATSAPP_API_URL=[https://graph.facebook.com/vXX.X/YOUR_PHONE_NUMBER_ID/messages](https://graph.facebook.com/vXX.X/YOUR_PHONE_NUMBER_ID/messages) # Substitua pela sua URL da API
+        ACCESS_TOKEN=<SEU_ACCESS_TOKEN_PERMANENTE_DA_META> # Token gerado na plataforma Meta
+        # PHONE_NUMBER_ID=<SEU_PHONE_NUMBER_ID> # Se necessário em outras partes
         ```
-        *(Substitua `https://SUA_URL_DA_API_BACKEND/api` pela URL real onde seu backend está rodando).*
+    * **IMPORTANTE:** Adicione o arquivo `.env` ao seu `.gitignore`!
 
 ## ▶️ Rodando o Projeto
 
-1.  **Inicie o servidor de desenvolvimento:**
+1.  **Inicie o servidor:**
     ```bash
     npm run dev
     # ou
-    # yarn dev
+    # npm start (dependendo dos seus scripts no package.json)
     ```
-2.  Abra seu navegador e acesse `http://localhost:5173` (ou a porta indicada no terminal).
+2.  O servidor estará rodando em `http://localhost:PORT` (onde `PORT` é o valor definido no seu `.env` ou 5000 por padrão).
 
-## 🏗️ Build para Produção
+## 🗺️ Endpoints da API (Visão Geral)
 
-Para gerar os arquivos otimizados para deploy:
-```bash
-npm run build
-# ou
-# yarn build
+* **Autenticação (`/api/auth`)**
+    * `POST /login`: Autentica um usuário e retorna um token JWT.
+    * `POST /register` (Opcional): Registra um novo usuário.
+    * `GET /validate-token` (Opcional): Rota protegida para validar um token existente.
+* **Vagas (`/api/vagas`)**
+    * `GET /`: Lista todas as vagas (protegida).
+    * `POST /`: Cria uma nova vaga (protegida).
+    * `PUT /:id/ocupar`: Ocupa uma vaga (protegida).
+    * `PUT /:id/liberar`: Libera uma vaga (protegida).
+    * `DELETE /:id` (Opcional): Deleta uma vaga (protegida).
+* **Moradores (`/api/moradores`)**
+    * `GET /`: Lista todos os moradores (protegida).
+    * `POST /`: Cria um novo morador (protegida).
+    * `PUT /:id`: Atualiza um morador (protegida).
+    * `DELETE /:id`: Deleta um morador (protegida).
+* **Veículos (`/api/veiculos`)**
+    * `GET /`: Lista todos os veículos (protegida).
+    * `POST /`: Cria um novo veículo (protegida).
+    * `PUT /:id`: Atualiza um veículo (protegida).
+    * `DELETE /:id`: Deleta um veículo (protegida).
 
-src/
-├── assets/         # Imagens, logos, fontes
-├── components/     # Componentes React
-│   ├── ui/         # Componentes genéricos (Button, Modal, Input, Toast, etc.)
-│   └── ...         # Componentes específicos (CardVaga, CardMorador, etc.)
-├── contexts/       # React Contexts (ex: AuthContext)
-├── hooks/          # Custom Hooks (se houver)
-├── layouts/        # Componentes de layout (ex: DefaultLayout)
-├── pages/          # Componentes que representam páginas inteiras (Login, Vagas, etc.)
-├── routes/         # Configuração do React Router
-├── services/       # Lógica de comunicação com API (ex: api.js)
-├── App.jsx         # Componente principal da aplicação (ou similar)
-└── main.jsx        # Ponto de entrada da aplicação React
+*(**Nota:** Todas as rotas (exceto `/api/auth/login` e `/api/auth/register`) requerem um token JWT válido enviado no cabeçalho `Authorization: Bearer <token>`)*.
+
+---
+
+Este README cobre os pontos essenciais do seu backend. Lembre-se de personalizar os links, nomes e talvez adicionar mais detalhes sobre a estrutura do projeto ou como configurar o template do WhatsApp se achar necessário.

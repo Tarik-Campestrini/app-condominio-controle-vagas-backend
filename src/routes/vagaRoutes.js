@@ -1,5 +1,5 @@
 import express from "express";
-import { createVaga, listarVagas, ocuparVaga, liberarVaga } from "../controllers/vagaController.js";
+import { createVaga, listarVagas, ocuparVaga, liberarVaga, deletarVaga } from "../controllers/vagaController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();

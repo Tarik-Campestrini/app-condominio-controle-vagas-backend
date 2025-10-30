@@ -7,6 +7,9 @@ const router = express.Router();
 // Criar vaga
 router.post("/", protect, createVaga);
 
+// Deletar vaga
+router.delete("/:id", protect, deletarVaga);
+
 // Listar todas
 router.get("/", protect, listarVagas);
 

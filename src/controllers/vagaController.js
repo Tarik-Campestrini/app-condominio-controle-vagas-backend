@@ -19,6 +19,34 @@ export const createVaga = async (req, res) => {
   }
 };
 
+// Função para Deletar uma vaga com verificação de status
+export const deletarVaga = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const vaga = await Vaga.findById(id);
+
+    // Adiciona uma verificação: não deletar se estiver ocupada
+    if (!vaga) {
+      return res.status(404).json({ message: "Vaga não encontrada." });
+    }
+    if (vaga.status === "Ocupada") {
+      return res.status(400).json({ message: "Não é possível deletar uma vaga ocupada. Libere a vaga primeiro." });
+    }
+
+    // Se estiver livre, prossegue com a deleção
+    await Vaga.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Vaga deletada com sucesso!" });
+  } catch (error) {
+    console.error("Erro ao deletar vaga:", error);
+    res.status(500).json({
+      message: "Erro ao deletar vaga.",
+      error: error.message,
+    });
+  }
+};
+
+
 // Função para Listar todas as vagas
 export const listarVagas = async (req, res) => {
   try {
@@ -193,14 +221,3 @@ export const liberarVaga = async (req, res) => {
   }
 };
 
-//  Deletar vaga
-export const deletarVaga = async (req, res) => {
-  try {
-    const { id } = req.params;
-    await Vaga.findByIdAndDelete(id);
-    res.status(200).json({ message: "Vaga deletada com sucesso!" });
-  } catch (error) {
-    console.error("Erro ao deletar vaga:", error); 
-    res.status(500).json({ message: "Erro ao deletar vaga.", error: error.message });
-  }
-};

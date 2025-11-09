@@ -1,8 +1,8 @@
 import Vaga from "../models/vagaModel.js";
 import Morador from "../models/moradorModel.js";
-import { sendTemplateMessageVaga } from "../services/whatsappService.js"; 
+import { sendTemplateMessageVaga } from "../services/whatsappService.js";
 
-// Função para Criar uma vaga
+// ✅ Criar uma vaga manualmente
 export const createVaga = async (req, res) => {
   try {
     const { identificador } = req.body;
@@ -14,40 +14,12 @@ export const createVaga = async (req, res) => {
     await vaga.save();
     res.status(201).json({ message: "Vaga criada com sucesso!", vaga });
   } catch (error) {
-    console.error("Erro ao criar vaga:", error); 
+    console.error("Erro ao criar vaga:", error);
     res.status(500).json({ message: "Erro ao criar vaga.", error: error.message });
   }
 };
 
-// Função para Deletar uma vaga com verificação de status
-export const deletarVaga = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const vaga = await Vaga.findById(id);
-
-    // Adiciona uma verificação: não deletar se estiver ocupada
-    if (!vaga) {
-      return res.status(404).json({ message: "Vaga não encontrada." });
-    }
-    if (vaga.status === "Ocupada") {
-      return res.status(400).json({ message: "Não é possível deletar uma vaga ocupada. Libere a vaga primeiro." });
-    }
-
-    // Se estiver livre, prossegue com a deleção
-    await Vaga.findByIdAndDelete(id);
-
-    res.status(200).json({ message: "Vaga deletada com sucesso!" });
-  } catch (error) {
-    console.error("Erro ao deletar vaga:", error);
-    res.status(500).json({
-      message: "Erro ao deletar vaga.",
-      error: error.message,
-    });
-  }
-};
-
-
-// Função para Listar todas as vagas
+// ✅ Listar todas as vagas
 export const listarVagas = async (req, res) => {
   try {
     const vagas = await Vaga.find()
@@ -56,14 +28,13 @@ export const listarVagas = async (req, res) => {
       .sort({ identificador: 1 });
     res.status(200).json(vagas);
   } catch (error) {
-    console.error("Erro ao listar vagas:", error); 
+    console.error("Erro ao listar vagas:", error);
     res.status(500).json({ message: "Erro ao listar vagas.", error: error.message });
   }
 };
 
-// Função para Ocupar uma vaga
+// ✅ Ocupar vaga
 export const ocuparVaga = async (req, res) => {
-
   // Variáveis para rastrear status da notificação
   let notificationAttempted = false;
   let notificationSuccess = true;
@@ -73,12 +44,12 @@ export const ocuparVaga = async (req, res) => {
     const { id } = req.params;
     const { morador, veiculo, visitante, dataSaida, notificationOption, notificationRecipientId } = req.body;
 
-    //  Validações sobre a vaga
+    // --- Validações Iniciais ---
     const vagaExistente = await Vaga.findById(id);
     if (!vagaExistente) return res.status(404).json({ error: "Vaga não encontrada." });
     if (vagaExistente.status === "Ocupada") return res.status(409).json({ error: "Esta vaga já está ocupada." });
 
-    // Preparação dos Dados para Atualização
+    // --- Preparação dos Dados para Atualização ---
     const updateData = {
       status: "Ocupada",
       dataEntrada: new Date(),
@@ -96,12 +67,12 @@ export const ocuparVaga = async (req, res) => {
         return res.status(400).json({ error: "É necessário informar um morador ou um visitante." });
     }
 
-    //  Atualização e Populate 
+    // --- Atualização e Populate ---
     const vagaAtualizada = await Vaga.findByIdAndUpdate(id, updateData, { new: true })
       .populate("morador", "nome telefone") // Popula ocupante (nome e telefone)
       .populate("veiculo", "placa modelo"); // Popula veículo (placa e modelo)
 
-    // LÓGICA DE NOTIFICAÇÃO (SE FOR MORADOR OCUPANDO) ---
+    // --- LÓGICA DE NOTIFICAÇÃO (SE FOR MORADOR OCUPANDO) ---
     if (vagaAtualizada.morador) { // Apenas se um morador ocupou
       const moradorOcupante = vagaAtualizada.morador;
       const veiculoOcupante = vagaAtualizada.veiculo;
@@ -114,44 +85,62 @@ export const ocuparVaga = async (req, res) => {
       }
 
       // Prepara dados base para o template
-      const templateNomeOcupante = moradorOcupante.nome;
+      const templateNomeOcupante = moradorOcupante.nome; // Nome de quem ocupou
       const templateVagaInfo = vagaId + (veiculoOcupante ? ` (Veículo: ${veiculoOcupante.placa})` : '');
       const templateDataSaida = dataSaidaFormatada;
 
       const notificationPromises = [];
-      notificationAttempted = true; // (o ocupante sempre recebera a menssagem por default)
+      notificationAttempted = true; // Marcamos que vamos tentar notificar
 
-      // Adiciona promessa para notificação PADRÃO do ocupante (se tiver telefone cadastrado)
+      // 1. Adiciona promessa para notificação PADRÃO do ocupante (se tiver telefone)
       if (moradorOcupante.telefone) {
+        console.log(`📣 Preparando notificação padrão para o ocupante: ${moradorOcupante.nome}`);
         notificationPromises.push(
-          sendTemplateMessageVaga(moradorOcupante.telefone, templateNomeOcupante, templateVagaInfo, templateDataSaida)
+          sendTemplateMessageVaga(
+            moradorOcupante.telefone,
+            moradorOcupante.nome, // {{nome}} = Nome do Ocupante
+            templateVagaInfo,
+            templateDataSaida
+          )
         );
       } else {
         console.log(`ℹ️ Morador ocupante ${moradorOcupante.nome} não possui telefone para notificação padrão.`);
       }
 
-      //  Adiciona promessas para notificações ADICIONAIS
+      // 2. Adiciona promessas para notificações ADICIONAIS
       if (notificationOption === 'all') {
         const outrosMoradores = await Morador.find({ _id: { $ne: moradorOcupante._id }, telefone: { $ne: null } }, 'nome telefone');
+        console.log(`📣 Preparando notificações adicionais para ${outrosMoradores.length} outros moradores.`);
         outrosMoradores.forEach(m => {
           notificationPromises.push(
-            sendTemplateMessageVaga(m.telefone, templateNomeOcupante, templateVagaInfo, templateDataSaida)
+            sendTemplateMessageVaga(
+              m.telefone, 
+              m.nome, // {{nome}} = Nome do Destinatário (vizinho)
+              templateVagaInfo,
+              templateDataSaida
+            )
           );
         });
       } else if (notificationOption === 'specific' && notificationRecipientId) {
         if (moradorOcupante._id.toString() !== notificationRecipientId) {
             const destinatarioEspecifico = await Morador.findOne({ _id: notificationRecipientId, telefone: { $ne: null } }, 'nome telefone');
             if (destinatarioEspecifico) {
+              console.log(`📣 Preparando notificação adicional para o morador específico: ${destinatarioEspecifico.nome}`);
               notificationPromises.push(
-                sendTemplateMessageVaga(destinatarioEspecifico.telefone, templateNomeOcupante, templateVagaInfo, templateDataSaida)
+                sendTemplateMessageVaga(
+                  destinatarioEspecifico.telefone,
+                  destinatarioEspecifico.nome, // {{nome}} = Nome do Destinatário (vizinho)
+                  templateVagaInfo,
+                  templateDataSaida
+                )
               );
             } else { console.log(`⚠️ Destinatário específico (ID: ${notificationRecipientId}) não encontrado ou sem telefone.`); }
-        } else { console.log(`ℹ️ Destinatário específico é o próprio ocupante, notificação padrão já será enviada.`); }
+        } else { console.log(`ℹ️ Destinatário específico é o próprio ocupante.`); }
       }
 
-      //  Envia todas as notificações preparadas (se houver alguma)
+      // 3. Envia todas as notificações preparadas (se houver alguma)
       if (notificationPromises.length > 0) {
-        console.log(`🚀 Tentando enviar ${notificationPromises.length} notificações...`); 
+        console.log(`🚀 Tentando enviar ${notificationPromises.length} notificações...`);
         try {
           const results = await Promise.allSettled(notificationPromises);
           const failedCount = results.filter(r => r.status === 'rejected').length;
@@ -159,24 +148,19 @@ export const ocuparVaga = async (req, res) => {
             notificationSuccess = false;
             const firstError = results.find(r => r.status === 'rejected');
             notificationErrorMsg = firstError.reason?.message || "Falha no envio de uma ou mais notificações.";
-            console.error(`⚠️ ${failedCount} notificação(ões) falharam. Primeiro erro: ${notificationErrorMsg}`); 
-          } else {
-            console.log(`✅ ${notificationPromises.length} notificação(ões) enviadas com sucesso.`);
-          }
+            console.error(`⚠️ ${failedCount} notificação(ões) falharam. Primeiro erro: ${notificationErrorMsg}`);
+          } else { console.log(`✅ ${notificationPromises.length} notificação(ões) enviadas com sucesso.`); }
         } catch (groupError) {
           notificationSuccess = false;
           notificationErrorMsg = groupError.message || "Erro inesperado ao processar envios.";
-          console.error("⚠️ Erro inesperado durante Promise.allSettled:", groupError); 
+          console.error("⚠️ Erro inesperado durante Promise.allSettled:", groupError);
         }
       } else {
-         notificationAttempted = false; // Nenhuma notificação foi realmente tentada
-         console.log("ℹ️ Nenhuma notificação a ser enviada (sem destinatários válidos)."); 
+         notificationAttempted = false; 
+         console.log("ℹ️ Nenhuma notificação a ser enviada (sem destinatários válidos).");
       }
-    } else {
-      // Log informativo se não for morador ou opção 'none' (já coberto no frontend, mas bom ter)
-      console.log("ℹ️ Notificação pulada (Visitante ou opção 'none').");
     }
-    
+    // --- FIM DA LÓGICA DE NOTIFICAÇÃO ---
 
     // Inclui status da notificação na resposta JSON
     res.status(200).json({
@@ -193,12 +177,12 @@ export const ocuparVaga = async (req, res) => {
      if (error.code === 11000) {
        return res.status(409).json({ error: "Conflito: Veículo ou morador já pode estar associado a outra vaga.", details: error.message });
      }
-     console.error("❌ Erro geral ao ocupar vaga:", error); 
+     console.error("❌ Erro geral ao ocupar vaga:", error);
      return res.status(500).json({ error: "Erro interno no servidor ao tentar ocupar a vaga.", details: error.message });
   }
 };
 
-//  Liberar vaga
+// ✅ Liberar vaga
 export const liberarVaga = async (req, res) => {
   try {
     const { id } = req.params;
@@ -216,8 +200,31 @@ export const liberarVaga = async (req, res) => {
     );
     res.status(200).json({ message: "Vaga liberada com sucesso!", vaga });
   } catch (error) {
-    console.error("Erro ao liberar vaga:", error); 
+    console.error("Erro ao liberar vaga:", error);
     res.status(500).json({ message: "Erro ao liberar vaga.", error: error.message });
   }
 };
 
+// ✅ Deletar vaga
+export const deletarVaga = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const vaga = await Vaga.findById(id);
+
+    if (!vaga) {
+      return res.status(404).json({ message: "Vaga não encontrada." });
+    }
+    if (vaga.status === "Ocupada") {
+      return res.status(400).json({ message: "Não é possível deletar uma vaga ocupada. Libere a vaga primeiro." });
+    }
+
+    await Vaga.findByIdAndDelete(id);
+    res.status(200).json({ message: "Vaga deletada com sucesso!" });
+  } catch (error) {
+    console.error("Erro ao deletar vaga:", error);
+    res.status(500).json({
+      message: "Erro ao deletar vaga.",
+      error: error.message,
+    });
+  }
+};
